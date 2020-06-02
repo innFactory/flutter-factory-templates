@@ -5,8 +5,9 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:template/auth/user_repository.dart';
-import 'package:template/auth/validators.dart';
+
+import '../../user_repository.dart';
+import '../../validators.dart';
 
 part 'register_event.dart';
 part 'register_state.dart';

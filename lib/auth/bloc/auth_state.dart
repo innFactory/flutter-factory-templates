@@ -7,7 +7,7 @@ abstract class AuthState extends Equatable {
   List<Object> get props => [];
 }
 
-class Uninitialized extends AuthState {}
+class AuthUninitialized extends AuthState {}
 
 class Authenticated extends AuthState {
   final FirebaseUser firebaseUser;

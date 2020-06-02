@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
 import 'package:bot_toast/bot_toast.dart';
@@ -9,38 +10,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:template/auth/bloc/auth_bloc.dart';
-import 'package:template/blocs/settings/settings_bloc.dart';
-import 'package:template/model/settings.dart';
-import 'package:template/push_notifications/model/push_notification_channel.dart';
-import 'package:template/push_notifications/push_notification_handler.dart';
+import 'package:template/auth/auth.dart';
+import 'package:template/config/config.dart';
+import 'package:template/model/config.dart';
+import 'package:template/push_notifications/push_notifications.dart';
 import 'package:template/routes.dart';
+import 'package:template/simple_bloc_delegate.dart';
 import 'package:template/views/splash.dart';
-
-class SimpleBlocDelegate extends BlocDelegate {
-  @override
-  void onEvent(Bloc bloc, Object event) {
-    super.onEvent(bloc, event);
-    print(event);
-  }
-
-  @override
-  void onTransition(Bloc bloc, Transition transition) {
-    super.onTransition(bloc, transition);
-    print(transition);
-  }
-
-  @override
-  void onError(Bloc bloc, Object error, StackTrace stacktrace) {
-    super.onError(bloc, error, stacktrace);
-    print(error);
-  }
-}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   BlocSupervisor.delegate = SimpleBlocDelegate();
+
   // Pass all uncaught errors to Crashlytics.
   FlutterError.onError = Crashlytics.instance.recordFlutterError;
 
@@ -61,57 +43,64 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  final FirebaseAnalytics analytics = FirebaseAnalytics();
-  final PushNotificationHandler _pushNotificationRepository = PushNotificationHandler();
-
-  @override
-  void initState() {
-    super.initState();
-    _pushNotificationRepository.initialize([
-      PushNotificationChannel('General', initiallySubscribedTo: true),
-    ]);
-  }
+  final FirebaseAnalytics _analytics = FirebaseAnalytics();
+  final Config _defaultConfig = Config(
+    welcome: 'Welcome',
+  );
+  final List<PushNotificationChannel> _pushNotificationChannels = [
+    PushNotificationChannel('General', initiallySubscribedTo: true),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (BuildContext context) => AuthBloc(skipAuth: true)..add(InitAuth())),
-        BlocProvider(create: (BuildContext context) => SettingsBloc()..add(InitSettings())),
+        BlocProvider(
+          create: (BuildContext context) => AuthBloc(skipAuth: true)..add(InitAuth()),
+          lazy: true,
+        ),
+        BlocProvider(
+          create: (BuildContext context) => PushNotificationsBloc(
+            channels: _pushNotificationChannels,
+          )..add(InitPushNotifications()),
+        ),
+        BlocProvider(
+          create: (BuildContext context) => ConfigBloc<Config>(
+            defaultConfig: _defaultConfig,
+            configFromJson: (json) => Config.fromJson(json),
+            configToJson: (config) => config.toJson(),
+            configMerge: (configA, configB) => configA.merge(configB),
+            remoteConfigEnabled: true,
+            remoteConfigToConfig: (remoteConfigMap) => Config(
+              welcome: json.decode(remoteConfigMap['welcome'].asString())['value'],
+            ),
+          )..add(InitConfig()),
+        ),
       ],
-      child: BlocBuilder<SettingsBloc, Settings>(
-        builder: (BuildContext context, Settings settings) {
-          // Check if the config is loaded and remote config has been initialized at least once
-          if ((settings?.initialized ?? false) && (settings?.remoteConfigInitialized ?? false)) {
-            return BlocListener<AuthBloc, AuthState>(
-              listener: (BuildContext context, AuthState authState) {
-                if (authState is Authenticated) {
-                  App.navigatorKey.currentState.pushReplacementNamed(Routes.HOME.route);
-                } else if (authState is Unauthenticated) {
-                  App.navigatorKey.currentState.pushReplacementNamed(Routes.LOGIN.route);
-                } else {
-                  App.navigatorKey.currentState.pushReplacementNamed(Routes.SPLASH.route);
-                }
-              },
-              child: MaterialApp(
-                title: 'App',
-                theme: ThemeData(
-                  primarySwatch: Colors.blue,
-                ),
-                navigatorKey: App.navigatorKey,
-                initialRoute: Routes.SPLASH.route,
-                routes: Routes.routes,
-                navigatorObservers: [
-                  FirebaseAnalyticsObserver(analytics: analytics),
-                  BotToastNavigatorObserver(),
-                ],
-                builder: BotToastInit(),
+      child: ConfigBuilder<Config>(
+        builder: (BuildContext context, Config config) {
+          return AuthListener(
+            navigatorKey: App.navigatorKey,
+            homeRoute: Routes.HOME.route,
+            loginRoute: Routes.LOGIN.route,
+            splashRoute: Routes.SPLASH.route,
+            child: MaterialApp(
+              title: 'App',
+              theme: ThemeData(
+                primarySwatch: Colors.blue,
               ),
-            );
-          } else {
-            return SplashScreen();
-          }
+              navigatorKey: App.navigatorKey,
+              initialRoute: Routes.SPLASH.route,
+              routes: Routes.routes,
+              navigatorObservers: [
+                FirebaseAnalyticsObserver(analytics: _analytics),
+                BotToastNavigatorObserver(),
+              ],
+              builder: BotToastInit(),
+            ),
+          );
         },
+        loading: (context) => SplashScreen(),
       ),
     );
   }

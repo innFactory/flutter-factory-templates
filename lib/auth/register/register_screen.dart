@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:template/auth/register/bloc/register_bloc.dart';
-import 'package:template/auth/register/widgets/register_form.dart';
+
+import 'bloc/register_bloc.dart';
+import 'widgets/register_form.dart';
 
 class RegisterScreen extends StatelessWidget {
   @override

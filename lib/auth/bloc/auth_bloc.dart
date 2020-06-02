@@ -4,21 +4,21 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pedantic/pedantic.dart';
-import 'package:template/auth/user_repository.dart';
+
+import '../user_repository.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
+  /// Debug flag to temporarily disable authentication
   final bool skipAuth;
   final UserRepository _userRepository;
 
-  AuthBloc({
-    this.skipAuth = false,
-  }) : _userRepository = UserRepository();
+  AuthBloc({this.skipAuth = false}) : _userRepository = UserRepository();
 
   @override
-  AuthState get initialState => Uninitialized();
+  AuthState get initialState => AuthUninitialized();
 
   @override
   Stream<AuthState> mapEventToState(

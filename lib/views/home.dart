@@ -2,8 +2,7 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:template/auth/bloc/auth_bloc.dart';
-import 'package:template/push_notifications/views/notification_list.dart';
+import '../auth/bloc/auth_bloc.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -44,7 +43,6 @@ class _HomeScreenState extends State<HomeScreen> {
         physics: NeverScrollableScrollPhysics(),
         onPageChanged: (index) => setState(() => _currentPage = index),
         children: <Widget>[
-          NotificationList(),
           Container(
             color: Colors.green,
             child: Center(
@@ -55,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           Container(color: Colors.orange),
+          Container(color: Colors.red),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

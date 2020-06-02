@@ -3,14 +3,20 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:template/auth/bloc/auth_bloc.dart';
-import 'package:template/auth/login/bloc/login_bloc.dart';
-import 'package:template/auth/login/widgets/create_account_button.dart';
-import 'package:template/auth/login/widgets/login_button.dart';
-import 'package:template/auth/login/widgets/social_button.dart';
+
+import '../../bloc/auth_bloc.dart';
+import '../bloc/login_bloc.dart';
+import 'create_account_button.dart';
+import 'login_button.dart';
+import 'social_button.dart';
 
 class LoginForm extends StatefulWidget {
-  LoginForm({Key key}) : super(key: key);
+  final String registerRoute;
+
+  LoginForm({
+    Key key,
+    @required this.registerRoute,
+  }) : super(key: key);
 
   @override
   State<LoginForm> createState() => _LoginFormState();
@@ -131,7 +137,9 @@ class _LoginFormState extends State<LoginForm> {
                             ),
                           ],
                         ),
-                        CreateAccountButton(),
+                        CreateAccountButton(
+                          registerRoute: widget.registerRoute,
+                        ),
                       ],
                     ),
                   ),

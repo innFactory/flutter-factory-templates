@@ -1,19 +1,17 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'settings.dart';
+part of 'config.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Settings _$SettingsFromJson(Map<String, dynamic> json) {
-  return Settings(
+Config _$ConfigFromJson(Map<String, dynamic> json) {
+  return Config(
     welcome: json['welcome'] as String,
-    remoteConfigInitialized: json['remoteConfigInitialized'] as bool,
   );
 }
 
-Map<String, dynamic> _$SettingsToJson(Settings instance) => <String, dynamic>{
+Map<String, dynamic> _$ConfigToJson(Config instance) => <String, dynamic>{
       'welcome': instance.welcome,
-      'remoteConfigInitialized': instance.remoteConfigInitialized,
     };

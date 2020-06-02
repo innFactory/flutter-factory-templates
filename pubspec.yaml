@@ -31,6 +31,7 @@ dependencies:
 
   # Authentication
   firebase_auth: ^0.16.0
+  # Automagically configurable through FlutterFactory cli: https://github.com/innFactory/flutter-factory
   google_sign_in: ^4.5.0 # Additional setup required for IOS: https://pub.dev/packages/google_sign_in#ios-integration
   sign_in_with_apple: ^2.1.0+1 # Additional setup required: https://pub.dev/packages/sign_in_with_apple#setup
   flutter_facebook_login: ^3.0.0 # Additional setup required: https://pub.dev/packages/flutter_facebook_login#installation
@@ -55,6 +56,9 @@ dependencies:
   cached_network_image: ^2.2.0+1
   path_provider: ^1.6.8
   url_launcher: ^5.4.7
+
+  # Logging
+  logger: ^0.9.1
 
   # Code style - Effective Dart
   pedantic: ^1.9.0

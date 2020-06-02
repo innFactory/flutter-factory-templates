@@ -3,9 +3,10 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:template/auth/auth_provider/auth_provider.dart';
-import 'package:template/auth/user_repository.dart';
-import 'package:template/auth/validators.dart';
+import '../../auth_provider/auth_provider.dart';
+
+import '../../user_repository.dart';
+import '../../validators.dart';
 
 part 'login_state.dart';
 part 'login_event.dart';

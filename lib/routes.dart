@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:template/auth/login/login_screen.dart';
-import 'package:template/auth/register/register_screen.dart';
+import 'package:template/auth/auth.dart';
 import 'package:template/views/home.dart';
 import 'package:template/views/splash.dart';
 
@@ -15,13 +14,13 @@ class Routes {
   );
 
   // Auth
-  static _Route LOGIN = _Route(
-    route: '/login',
-    page: (context) => LoginScreen(),
-  );
   static _Route REGISTER = _Route(
     route: '/register',
     page: (context) => RegisterScreen(),
+  );
+  static _Route LOGIN = _Route(
+    route: '/auth',
+    page: (context) => LoginScreen(registerRoute: REGISTER.route),
   );
 
   static Map<String, Widget Function(BuildContext)> routes = <String, WidgetBuilder>{
