@@ -16,7 +16,7 @@ class EmailChanged extends LoginEvent {
   List<Object> get props => [email];
 
   @override
-  String toString() => 'EmailChanged { email :$email }';
+  String toString() => 'EmailChanged { email: $email }';
 }
 
 class PasswordChanged extends LoginEvent {
@@ -28,7 +28,7 @@ class PasswordChanged extends LoginEvent {
   List<Object> get props => [password];
 
   @override
-  String toString() => 'PasswordChanged { password: $password }';
+  String toString() => 'PasswordChanged { password: ${password.replaceAll(RegExp('.'), 'X')} }';
 }
 
 class Submitted extends LoginEvent {

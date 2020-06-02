@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 import 'package:template/auth/auth.dart';
 import 'package:template/config/config.dart';
 import 'package:template/model/config.dart';
@@ -22,6 +23,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   BlocSupervisor.delegate = SimpleBlocDelegate();
+
+  // Set logging level
+  Logger.level = Level.debug;
 
   // Pass all uncaught errors to Crashlytics.
   FlutterError.onError = Crashlytics.instance.recordFlutterError;
@@ -56,15 +60,11 @@ class _AppState extends State<App> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (BuildContext context) => AuthBloc(skipAuth: true)..add(InitAuth()),
-          lazy: true,
+          // Will get initialized in the AuthListener since it has to wait for the ConfigBloc to be done initializing.
+          create: (BuildContext context) => AuthBloc(skipAuth: true),
         ),
         BlocProvider(
-          create: (BuildContext context) => PushNotificationsBloc(
-            channels: _pushNotificationChannels,
-          )..add(InitPushNotifications()),
-        ),
-        BlocProvider(
+          lazy: false,
           create: (BuildContext context) => ConfigBloc<Config>(
             defaultConfig: _defaultConfig,
             configFromJson: (json) => Config.fromJson(json),
@@ -75,6 +75,12 @@ class _AppState extends State<App> {
               welcome: json.decode(remoteConfigMap['welcome'].asString())['value'],
             ),
           )..add(InitConfig()),
+        ),
+        BlocProvider(
+          lazy: false,
+          create: (BuildContext context) => PushNotificationsBloc(
+            channels: _pushNotificationChannels,
+          )..add(InitPushNotifications()),
         ),
       ],
       child: ConfigBuilder<Config>(

@@ -21,6 +21,9 @@ class AuthListener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authBloc = BlocProvider.of<AuthBloc>(context);
+    if (authBloc.state is AuthUninitialized) authBloc.add(InitAuth());
+
     return BlocListener<AuthBloc, AuthState>(
       listener: (BuildContext context, AuthState authState) {
         if (authState is Authenticated) {

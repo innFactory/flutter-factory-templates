@@ -2,6 +2,7 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:template/push_notifications/push_notifications.dart';
 import '../auth/bloc/auth_bloc.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -46,9 +47,25 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             color: Colors.green,
             child: Center(
-              child: RaisedButton(
-                child: Text('Test'),
-                onPressed: () => BotToast.showSimpleNotification(title: 'Test', subTitle: 'Testnotification'),
+              child: ListView(
+                children: <Widget>[
+                  RaisedButton(
+                    child: Text('Test Notification'),
+                    onPressed: () => BotToast.showSimpleNotification(title: 'Test', subTitle: 'Testnotification'),
+                  ),
+                  BlocBuilder<PushNotificationsBloc, PushNotificationsState>(
+                    builder: (context, state) {
+                      if (state is PushNotificationsLoaded) {
+                        return RaisedButton(
+                          child: Text('Test toggle notification channel: ${state.channels.first.isSubscribed}'),
+                          onPressed: () => BlocProvider.of<PushNotificationsBloc>(context).add(TogglePushNotificationChannel(state.channels.first)),
+                        );
+                      }
+
+                      return Container();
+                    },
+                  ),
+                ],
               ),
             ),
           ),

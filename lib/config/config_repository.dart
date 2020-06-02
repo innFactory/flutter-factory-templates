@@ -49,9 +49,9 @@ class ConfigRepository<T> {
 
       logger.d('''
 --- Fetching RemoteConfig ---
-Last Fetch Status: ' + remoteConfig.lastFetchStatus.toString()
-Last Fetch Time: ' + remoteConfig.lastFetchTime.toString()
-Debug Mode: ' + remoteConfig.remoteConfigSettings.debugMode.toString()''');
+Last Fetch Status: ${remoteConfig.lastFetchStatus.toString()}
+Last Fetch Time: ${remoteConfig.lastFetchTime.toString()}
+Debug Mode: ${remoteConfig.remoteConfigSettings.debugMode.toString()}''');
 
       _remoteConfigStream.add(remoteConfig.getAll());
     } catch (e, stacktrace) {

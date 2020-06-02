@@ -11,11 +11,13 @@ part 'push_notifications_state.dart';
 
 class PushNotificationsBloc extends Bloc<PushNotificationsEvent, PushNotificationsState> {
   final List<PushNotificationChannel> channels;
-  final PushNotificationsRepository _pushNotificationRepository;
+  PushNotificationsRepository _pushNotificationRepository;
 
   PushNotificationsBloc({
     @required this.channels,
-  }) : _pushNotificationRepository = PushNotificationsRepository();
+  }) {
+    _pushNotificationRepository = PushNotificationsRepository();
+  }
 
   @override
   PushNotificationsState get initialState => PushNotificationsUninitialized();
@@ -27,14 +29,21 @@ class PushNotificationsBloc extends Bloc<PushNotificationsEvent, PushNotificatio
     if (event is InitPushNotifications) {
       yield* _mapInitPushNotificationsToState();
     } else if (event is TogglePushNotificationChannel) {
-      yield* _mapTogglePushNotificationChannelToState();
+      yield* _mapTogglePushNotificationChannelToState(event.channel);
     }
   }
 
   Stream<PushNotificationsState> _mapInitPushNotificationsToState() async* {
-    await _pushNotificationRepository.initialize(channels);
-    yield PushNotificationsLoaded(channels: channels);
+    yield PushNotificationsLoaded(channels: await _pushNotificationRepository.initialize(channels));
   }
 
-  Stream<PushNotificationsState> _mapTogglePushNotificationChannelToState() async* {}
+  Stream<PushNotificationsState> _mapTogglePushNotificationChannelToState(PushNotificationChannel channel) async* {
+    await _pushNotificationRepository.toggleSubscription(channel);
+    yield PushNotificationsLoaded(
+      channels: (state as PushNotificationsLoaded).channels.map((e) {
+        if (e.identifier == channel.identifier) return channel.copyWith(isSubscribed: !channel.isSubscribed);
+        return e;
+      }).toList(),
+    );
+  }
 }

@@ -6,7 +6,7 @@ class SimpleBlocDelegate extends BlocDelegate {
   @override
   void onEvent(Bloc bloc, Object event) {
     super.onEvent(bloc, event);
-    logger.d('${bloc.runtimeType}: $event');
+    logger.v('${bloc.runtimeType}: $event');
   }
 
   @override

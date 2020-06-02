@@ -10,4 +10,16 @@ class PushNotificationChannel {
     this.initiallySubscribedTo = false,
     this.isSubscribed = false,
   }) : assert(pushNotificationChannelIdentifierRegex.hasMatch(identifier));
+
+  PushNotificationChannel copyWith({
+    bool isSubscribed,
+  }) =>
+      PushNotificationChannel(
+        identifier,
+        initiallySubscribedTo: initiallySubscribedTo,
+        isSubscribed: isSubscribed ?? this.isSubscribed,
+      );
+
+  @override
+  String toString() => 'PushNotificationChannel { identifier: $identifier, isSubscribed: $isSubscribed }';
 }
