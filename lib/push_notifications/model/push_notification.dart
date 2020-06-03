@@ -23,4 +23,13 @@ class PushNotification {
 
   /// Gets the notification message out of the [payload]
   String get message => payload['notification']['body'];
+
+  /// Gets the route out of the [payload]
+  String get route => payload['data']['route'];
+
+  /// Wether or not the payload contains a route
+  String get hasRoute => payload['data']['route'];
+
+  @override
+  String toString() => 'PushNotification { payload: $payload }';
 }
