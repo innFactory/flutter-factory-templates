@@ -12,9 +12,13 @@ import '../../validators.dart';
 part 'register_event.dart';
 part 'register_state.dart';
 
+/// {@template RegisterBloc}
+/// Handles the [RegisterScreen] logic
+/// {@endtemplate}
 class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
   final UserRepository _userRepository;
 
+  /// {@macro RegisterBloc}
   RegisterBloc() : _userRepository = UserRepository();
 
   @override
@@ -75,7 +79,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
         password: password,
       );
       yield RegisterState.success();
-    } catch (error) {
+    } on Exception catch (error) {
       yield RegisterState.failure('Error: $error');
     }
   }

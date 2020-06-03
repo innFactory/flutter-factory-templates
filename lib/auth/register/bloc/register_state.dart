@@ -1,16 +1,33 @@
 part of 'register_bloc.dart';
 
+/// {@template RegisterState}
+/// [RegisterState] provided in a [RegisterBloc]
+/// {@endtemplate}
 @immutable
 class RegisterState {
+  /// Wether or not the entered email is valid
   final bool isEmailValid;
+
+  /// Wether or not the entered password is valid
   final bool isPasswordValid;
+
+  /// Wether or not the there is an async
+  /// authentication operation is in progress
   final bool isSubmitting;
+
+  /// Wether or not the Login was a success
   final bool isSuccess;
+
+  /// Wether or not the Login was a failure
   final bool isFailure;
+
+  /// Optional error message when the login was a failure
   final String error;
 
+  /// Valid if both email and password are valid
   bool get isFormValid => isEmailValid && isPasswordValid;
 
+  /// {@macro RegisterState}
   RegisterState({
     @required this.isEmailValid,
     @required this.isPasswordValid,
@@ -20,6 +37,7 @@ class RegisterState {
     @required this.error,
   });
 
+  /// Factory constructor for an empty [RegisterState]
   factory RegisterState.empty() {
     return RegisterState(
       isEmailValid: true,
@@ -31,6 +49,7 @@ class RegisterState {
     );
   }
 
+  /// Factory constructor for a loading [RegisterState]
   factory RegisterState.loading() {
     return RegisterState(
       isEmailValid: true,
@@ -42,6 +61,7 @@ class RegisterState {
     );
   }
 
+  /// Factory constructor for a failed [RegisterState]
   factory RegisterState.failure(String error) {
     return RegisterState(
       isEmailValid: true,
@@ -53,6 +73,7 @@ class RegisterState {
     );
   }
 
+  /// Factory constructor for a successfull [RegisterState]
   factory RegisterState.success() {
     return RegisterState(
       isEmailValid: true,
@@ -64,6 +85,8 @@ class RegisterState {
     );
   }
 
+  /// Update the [RegisterState] with an optional replacement for
+  /// [isEmailValid] and or [isPasswordValid]
   RegisterState update({
     bool isEmailValid,
     bool isPasswordValid,
@@ -78,6 +101,7 @@ class RegisterState {
     );
   }
 
+  /// Update the [RegisterState] with optional overrides for every variable.
   RegisterState copyWith({
     bool isEmailValid,
     bool isPasswordValid,

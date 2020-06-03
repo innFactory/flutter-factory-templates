@@ -3,19 +3,27 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:pedantic/pedantic.dart';
 
 import '../user_repository.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
 
+/// {@template authbloc}
+/// Handles authentication logic with [FirebaseAuth] as well
+/// as with third party [AuthProvider]'s
+///
+/// Optional [skipAuth] flag for debugging purposes.
+/// {@endtemplate}
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   /// Debug flag to temporarily disable authentication
   final bool skipAuth;
   final UserRepository _userRepository;
 
-  AuthBloc({this.skipAuth = false}) : _userRepository = UserRepository();
+  /// {@macro authbloc}
+  AuthBloc({
+    this.skipAuth = false,
+  }) : _userRepository = UserRepository();
 
   @override
   AuthState get initialState => AuthUninitialized();
@@ -54,6 +62,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Stream<AuthState> _mapLoggedOutToState() async* {
     yield Unauthenticated();
-    unawaited(_userRepository.signOut());
+    _userRepository.signOut();
   }
 }

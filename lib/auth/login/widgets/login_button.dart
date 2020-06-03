@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
+/// {@template LoginButton}
+/// Simple styled [RaisedButton] with a [VoidCallback]
+/// {@endtemplate}
 class LoginButton extends StatelessWidget {
   final VoidCallback _onPressed;
 
+  /// {@macro LoginButton}
   LoginButton({Key key, VoidCallback onPressed})
       : _onPressed = onPressed,
         super(key: key);

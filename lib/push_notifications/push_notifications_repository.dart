@@ -1,36 +1,50 @@
 import 'dart:async';
 
-import 'package:bot_toast/bot_toast.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:template/logger.dart';
-import 'package:template/push_notifications/push_notification_channel.dart';
 
+import 'model/push_notification.dart';
+import 'model/push_notification_channel.dart';
+import 'model/push_notification_type.dart';
+
+typedef NotificationHandler = Function(PushNotification notification);
+
+/// {@template PushNotificationsRepository}
+/// Repository with helper functions used for PushNotifications
+/// {@endtemplate}
 class PushNotificationsRepository {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
-  static String PREFERENCES_PUSH_NOTIFICATIONS_KEY = 'pushNotifications';
+  /// [SharedPreferences] key prefix for [PushNotificationChannel]'s
+  static String preferencesPushNotificationsKeyPrefix = 'pushNotifications';
 
-  Future<List<PushNotificationChannel>> initialize(List<PushNotificationChannel> initialChannels) async {
-    //TODO: Background notifications in IOS don't show up yet
+  /// [Logger] instance to use for debugging
+  final Logger logger;
+
+  /// {@macro PushNotificationsRepository}
+  PushNotificationsRepository(this.logger);
+
+  /// Initialize [FirebaseMessaging] with given [initialChannels]
+  Future<List<PushNotificationChannel>> initialize({
+    @required List<PushNotificationChannel> initialChannels,
+    @required NotificationHandler onMessage,
+  }) async {
     await _firebaseMessaging.requestNotificationPermissions();
     await _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        logger.d('Received notification $message');
-        BotToast.showSimpleNotification(
-          title: message['notification']['title'],
-          subTitle: message['notification']['body'],
-          duration: Duration(seconds: 5),
-        );
-      },
-      onLaunch: (Map<String, dynamic> message) async {
-        //TODO: Implement navigation
-        print('PushNotificationHandler.onLaunch: $message');
-      },
-      onResume: (Map<String, dynamic> message) async {
-        //TODO: Implement navigation
-        print('PushNotificationHandler.onResume: $message');
-      },
+      onMessage: (message) => onMessage(PushNotification(
+        payload: message,
+        pushNotificationType: PushNotificationType.message,
+      )),
+      onLaunch: (message) => onMessage(PushNotification(
+        payload: message,
+        pushNotificationType: PushNotificationType.launch,
+      )),
+      onResume: (message) => onMessage(PushNotification(
+        payload: message,
+        pushNotificationType: PushNotificationType.resume,
+      )),
     );
 
     logger.d('FCM Token: ${await _firebaseMessaging.getToken()}');
@@ -44,7 +58,7 @@ class PushNotificationsRepository {
 
       try {
         subscribed = preferences.getBool(_preferencesChannelKey(channel));
-      } catch (_) {}
+      } on Exception catch (_) {}
 
       channels.add(channel.copyWith(isSubscribed: subscribed));
 
@@ -56,9 +70,11 @@ class PushNotificationsRepository {
     return channels;
   }
 
+  /// Toggle the [FirebaseMessaging] subscription of the given [channel]
   Future toggleSubscription(PushNotificationChannel channel) async {
     final preferences = await SharedPreferences.getInstance();
-    await preferences.setBool(_preferencesChannelKey(channel), !channel.isSubscribed);
+    await preferences.setBool(
+        _preferencesChannelKey(channel), !channel.isSubscribed);
 
     if (channel.isSubscribed) {
       await _firebaseMessaging.unsubscribeFromTopic(channel.identifier);
@@ -67,5 +83,6 @@ class PushNotificationsRepository {
     }
   }
 
-  String _preferencesChannelKey(PushNotificationChannel channel) => '$PREFERENCES_PUSH_NOTIFICATIONS_KEY.${channel.identifier}';
+  String _preferencesChannelKey(PushNotificationChannel channel) =>
+      '$preferencesPushNotificationsKeyPrefix.${channel.identifier}';
 }

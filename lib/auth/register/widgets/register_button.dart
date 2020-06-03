@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
+/// {@template RegisterButton}
+/// Simple styled [RaisedButton] with a [VoidCallback]
+/// {@endtemplate}
 class RegisterButton extends StatelessWidget {
   final VoidCallback _onPressed;
 
+  /// {@macro RegisterButton}
   RegisterButton({Key key, VoidCallback onPressed})
       : _onPressed = onPressed,
         super(key: key);

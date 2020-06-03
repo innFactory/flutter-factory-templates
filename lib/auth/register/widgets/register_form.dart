@@ -5,6 +5,7 @@ import '../../auth.dart';
 import '../bloc/register_bloc.dart';
 import 'register_button.dart';
 
+/// Form for registering an Account in the App
 class RegisterForm extends StatefulWidget {
   @override
   State<RegisterForm> createState() => _RegisterFormState();
@@ -16,7 +17,8 @@ class _RegisterFormState extends State<RegisterForm> {
 
   RegisterBloc _registerBloc;
 
-  bool get isPopulated => _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty;
+  bool get isPopulated =>
+      _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty;
 
   bool isRegisterButtonEnabled(RegisterState state) {
     return state.isFormValid && isPopulated && !state.isSubmitting;
@@ -104,7 +106,9 @@ class _RegisterFormState extends State<RegisterForm> {
                     },
                   ),
                   RegisterButton(
-                    onPressed: isRegisterButtonEnabled(state) ? _onFormSubmitted : null,
+                    onPressed: isRegisterButtonEnabled(state)
+                        ? _onFormSubmitted
+                        : null,
                   ),
                 ],
               ),

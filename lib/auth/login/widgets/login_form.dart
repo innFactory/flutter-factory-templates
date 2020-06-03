@@ -10,9 +10,14 @@ import 'create_account_button.dart';
 import 'login_button.dart';
 import 'social_button.dart';
 
+/// {@template LoginForm}
+/// Form for logging in to the App
+/// {@endtemplate}
 class LoginForm extends StatefulWidget {
+  /// The route to the [RegisterScreen]
   final String registerRoute;
 
+  /// {@macro LoginForm}
   LoginForm({
     Key key,
     @required this.registerRoute,
@@ -28,7 +33,8 @@ class _LoginFormState extends State<LoginForm> {
 
   LoginBloc _loginBloc;
 
-  bool get isPopulated => _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty;
+  bool get isPopulated =>
+      _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty;
 
   bool isLoginButtonEnabled(LoginState state) {
     return state.isFormValid && isPopulated && !state.isSubmitting;
@@ -53,7 +59,10 @@ class _LoginFormState extends State<LoginForm> {
               SnackBar(
                 content: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text(state.error ?? 'Login fehlgeschlagen'), Icon(Icons.error)],
+                  children: [
+                    Text(state.error ?? 'Login fehlgeschlagen'),
+                    Icon(Icons.error)
+                  ],
                 ),
                 backgroundColor: Colors.red,
               ),
@@ -121,19 +130,21 @@ class _LoginFormState extends State<LoginForm> {
                             if (Platform.isIOS)
                               SocialLoginButton(
                                 icon: Icon(FontAwesomeIcons.apple),
-                                socialLoginType: SocialLoginType.APPLE,
+                                socialLoginType: SocialLoginType.apple,
                               ),
                             SocialLoginButton(
                               icon: Icon(FontAwesomeIcons.google),
-                              socialLoginType: SocialLoginType.GOOGLE,
+                              socialLoginType: SocialLoginType.google,
                             ),
                             SocialLoginButton(
                               icon: Icon(FontAwesomeIcons.facebook),
-                              socialLoginType: SocialLoginType.FACEBOOK,
+                              socialLoginType: SocialLoginType.facebook,
                             ),
                             Spacer(),
                             LoginButton(
-                              onPressed: isLoginButtonEnabled(state) ? _onFormSubmitted : null,
+                              onPressed: isLoginButtonEnabled(state)
+                                  ? _onFormSubmitted
+                                  : null,
                             ),
                           ],
                         ),

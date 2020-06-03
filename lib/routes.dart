@@ -1,33 +1,36 @@
+// ignore_for_file: avoid_classes_with_only_static_members
+// ignore_for_file: public_member_api_docs
 import 'package:flutter/widgets.dart';
-import 'package:template/auth/auth.dart';
-import 'package:template/views/home.dart';
-import 'package:template/views/splash.dart';
+
+import 'auth/auth.dart';
+import 'views/home.dart';
+import 'views/splash.dart';
 
 class Routes {
-  static _Route SPLASH = _Route(
+  static _Route splash = _Route(
     route: '/',
     page: (context) => SplashScreen(),
   );
-  static _Route HOME = _Route(
+  static _Route home = _Route(
     route: '/home',
     page: (context) => HomeScreen(),
   );
 
   // Auth
-  static _Route REGISTER = _Route(
+  static _Route register = _Route(
     route: '/register',
     page: (context) => RegisterScreen(),
   );
-  static _Route LOGIN = _Route(
+  static _Route login = _Route(
     route: '/auth',
-    page: (context) => LoginScreen(registerRoute: REGISTER.route),
+    page: (context) => LoginScreen(registerRoute: register.route),
   );
 
-  static Map<String, Widget Function(BuildContext)> routes = <String, WidgetBuilder>{
-    SPLASH.route: SPLASH.page,
-    HOME.route: HOME.page,
-    LOGIN.route: LOGIN.page,
-    REGISTER.route: REGISTER.page,
+  static Map<String, Widget Function(BuildContext)> routes = {
+    splash.route: splash.page,
+    home.route: home.page,
+    login.route: login.page,
+    register.route: register.page,
   };
 }
 

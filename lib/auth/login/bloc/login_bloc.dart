@@ -11,11 +11,25 @@ import '../../validators.dart';
 part 'login_state.dart';
 part 'login_event.dart';
 
-enum SocialLoginType { GOOGLE, APPLE, FACEBOOK }
+/// Third party [AuthProvider] enum.
+enum SocialLoginType {
+  /// Google Auth button
+  google,
 
+  /// Apple Auth button
+  apple,
+
+  /// Facebook Auth button
+  facebook
+}
+
+/// {@template loginbloc}
+/// Handles the [LoginScreen] logic
+/// {@endtemplate}
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final UserRepository _userRepository;
 
+  /// {@macro loginbloc}
   LoginBloc() : _userRepository = UserRepository();
 
   @override
@@ -68,14 +82,15 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     );
   }
 
-  Stream<LoginState> _mapLoginWithSocialPressedToState(SocialLoginType socialLoginType) async* {
+  Stream<LoginState> _mapLoginWithSocialPressedToState(
+      SocialLoginType socialLoginType) async* {
     AuthResponse response;
 
-    if (socialLoginType == SocialLoginType.GOOGLE) {
+    if (socialLoginType == SocialLoginType.google) {
       response = await _userRepository.signInWithGoogle();
-    } else if (socialLoginType == SocialLoginType.FACEBOOK) {
+    } else if (socialLoginType == SocialLoginType.facebook) {
       response = await _userRepository.signInWithFacebook();
-    } else if (socialLoginType == SocialLoginType.APPLE) {
+    } else if (socialLoginType == SocialLoginType.apple) {
       response = await _userRepository.signInWithApple();
     }
 
@@ -93,9 +108,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     yield LoginState.loading();
 
     try {
-      await _userRepository.signInWithCredentials(email: email, password: password);
+      await _userRepository.signInWithCredentials(
+          email: email, password: password);
       yield LoginState.success();
-    } catch (error) {
+    } on Exception catch (error) {
       yield LoginState.failure('Error: $error');
     }
   }

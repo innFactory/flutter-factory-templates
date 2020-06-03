@@ -2,10 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/login_bloc.dart';
 
+/// {@template SocialLoginButton}
+/// Simple [IconButton] handling signing in
+/// with a third party [AuthProvider]
+/// {@endtemplate}
 class SocialLoginButton extends StatelessWidget {
+  /// The Icon of the [AuthProvider] to show
   final Icon icon;
+
+  /// The Type of third party [AuthProvider]
   final SocialLoginType socialLoginType;
 
+  /// {@macro SocialLoginButton}
   const SocialLoginButton({
     Key key,
     @required this.icon,

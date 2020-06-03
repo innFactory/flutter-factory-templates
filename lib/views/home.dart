@@ -2,9 +2,11 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:template/push_notifications/push_notifications.dart';
-import '../auth/bloc/auth_bloc.dart';
 
+import '../auth/bloc/auth_bloc.dart';
+import '../push_notifications/push_notifications.dart';
+
+/// The HomeScreen of the Application
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -35,7 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: <Widget>[
           IconButton(
             icon: Icon(FontAwesomeIcons.signOutAlt),
-            onPressed: () => BlocProvider.of<AuthBloc>(context).add(LoggedOut()),
+            onPressed: () =>
+                BlocProvider.of<AuthBloc>(context).add(LoggedOut()),
           )
         ],
       ),
@@ -51,14 +54,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: <Widget>[
                   RaisedButton(
                     child: Text('Test Notification'),
-                    onPressed: () => BotToast.showSimpleNotification(title: 'Test', subTitle: 'Testnotification'),
+                    onPressed: () => BotToast.showSimpleNotification(
+                        title: 'Test', subTitle: 'Testnotification'),
                   ),
                   BlocBuilder<PushNotificationsBloc, PushNotificationsState>(
                     builder: (context, state) {
                       if (state is PushNotificationsLoaded) {
                         return RaisedButton(
-                          child: Text('Test toggle notification channel: ${state.channels.first.isSubscribed}'),
-                          onPressed: () => BlocProvider.of<PushNotificationsBloc>(context).add(TogglePushNotificationChannel(state.channels.first)),
+                          child: Text('''
+                            Test toggle notification channel:
+                            ${state.channels.first.isSubscribed}'''),
+                          onPressed: () =>
+                              BlocProvider.of<PushNotificationsBloc>(context)
+                                  .add(TogglePushNotificationChannel(
+                                      state.channels.first)),
                         );
                       }
 
@@ -75,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentPage,
-        onTap: (int index) => _pageController.jumpToPage(index),
+        onTap: (index) => _pageController.jumpToPage(index),
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
