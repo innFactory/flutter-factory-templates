@@ -12,5 +12,6 @@
 		"editor.tabCompletion": "onlySnippets",
 		"editor.wordBasedSuggestions": false,
 		"files.insertFinalNewline": true
-	}
+	},
+	"dart.lineLength": 80
 }
