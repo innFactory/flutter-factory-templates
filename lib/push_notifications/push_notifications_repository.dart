@@ -35,15 +35,15 @@ class PushNotificationsRepository {
     await _firebaseMessaging.configure(
       onMessage: (message) => onMessage(PushNotification(
         payload: message,
-        pushNotificationType: PushNotificationType.message,
+        type: PushNotificationType.message,
       )),
       onLaunch: (message) => onMessage(PushNotification(
         payload: message,
-        pushNotificationType: PushNotificationType.launch,
+        type: PushNotificationType.launch,
       )),
       onResume: (message) => onMessage(PushNotification(
         payload: message,
-        pushNotificationType: PushNotificationType.resume,
+        type: PushNotificationType.resume,
       )),
     );
 
@@ -73,8 +73,7 @@ class PushNotificationsRepository {
   /// Toggle the [FirebaseMessaging] subscription of the given [channel]
   Future toggleSubscription(PushNotificationChannel channel) async {
     final preferences = await SharedPreferences.getInstance();
-    await preferences.setBool(
-        _preferencesChannelKey(channel), !channel.isSubscribed);
+    await preferences.setBool(_preferencesChannelKey(channel), !channel.isSubscribed);
 
     if (channel.isSubscribed) {
       await _firebaseMessaging.unsubscribeFromTopic(channel.identifier);

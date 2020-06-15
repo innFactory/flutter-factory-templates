@@ -4,11 +4,11 @@ import 'package:bloc/bloc.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
 import '../model/push_notification.dart';
-import '../model/push_notification_channel.dart';
-import '../push_notifications_repository.dart';
+import '../push_notifications.dart';
 
 part 'push_notifications_event.dart';
 part 'push_notifications_state.dart';
@@ -16,13 +16,15 @@ part 'push_notifications_state.dart';
 /// {@template PushNotificationsBloc}
 /// Handles PushNotification logic with [FirebaseMessaging]
 /// {@endtemplate}
-class PushNotificationsBloc
-    extends Bloc<PushNotificationsEvent, PushNotificationsState> {
+class PushNotificationsBloc extends Bloc<PushNotificationsEvent, PushNotificationsState> {
   /// The [Logger] instance used for debugging
   final Logger logger;
 
   /// A list of [PushNotificationChannel] to initialize
   final List<PushNotificationChannel> channels;
+
+  /// A [NavigatorKey] used for navigation on notification click
+  final GlobalKey<NavigatorState> navigatorKey;
 
   final PushNotificationsRepository _pushNotificationRepository;
 
@@ -30,6 +32,7 @@ class PushNotificationsBloc
   PushNotificationsBloc({
     @required this.logger,
     @required this.channels,
+    @required this.navigatorKey,
   }) : _pushNotificationRepository = PushNotificationsRepository(logger);
 
   @override
@@ -43,8 +46,6 @@ class PushNotificationsBloc
       yield* _mapInitPushNotificationsToState();
     } else if (event is TogglePushNotificationChannel) {
       yield* _mapTogglePushNotificationChannelToState(event.channel);
-    } else if (event is PushNotificationReceived) {
-      yield* _mapPushNotificationReceivedToState(event.notification);
     }
   }
 
@@ -52,14 +53,28 @@ class PushNotificationsBloc
     yield PushNotificationsLoaded(
       channels: await _pushNotificationRepository.initialize(
         initialChannels: channels,
-        onMessage: (notification) =>
-            add(PushNotificationReceived(notification)),
+        onMessage: (notification) {
+          if (notification.type == PushNotificationType.message) {
+            BotToast.showSimpleNotification(
+              title: notification.title,
+              subTitle: notification.message,
+              duration: Duration(seconds: 5),
+              onTap: () {
+                if (notification.hasRoute) {
+                  navigatorKey.currentState.pushNamed(notification.route);
+                }
+              },
+            );
+          } else if (notification.hasRoute) {
+            logger.d('hasRoute');
+            navigatorKey.currentState.pushNamed(notification.route);
+          }
+        },
       ),
     );
   }
 
-  Stream<PushNotificationsState> _mapTogglePushNotificationChannelToState(
-      PushNotificationChannel channel) async* {
+  Stream<PushNotificationsState> _mapTogglePushNotificationChannelToState(PushNotificationChannel channel) async* {
     await _pushNotificationRepository.toggleSubscription(channel);
     yield PushNotificationsLoaded(
       channels: (state as PushNotificationsLoaded).channels.map((e) {
@@ -69,17 +84,6 @@ class PushNotificationsBloc
 
         return e;
       }).toList(),
-    );
-  }
-
-  Stream<PushNotificationsState> _mapPushNotificationReceivedToState(
-      PushNotification notification) async* {
-    logger.d('Received notification $notification');
-
-    BotToast.showSimpleNotification(
-      title: notification.title,
-      subTitle: notification.message,
-      duration: Duration(seconds: 5),
     );
   }
 }

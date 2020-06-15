@@ -1,24 +1,21 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:bloc/bloc.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
 import 'auth/auth.dart';
+import 'bloc/todos/todos_bloc.dart';
 import 'config/config.dart';
-import 'model/config.dart';
+import 'data/model/config.dart';
 import 'push_notifications/push_notifications.dart';
 import 'routes.dart';
 import 'simple_bloc_delegate.dart';
-import 'views/splash.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -72,11 +69,6 @@ class App extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          // Will get initialized in the AuthListener since it has to wait
-          // for the ConfigBloc to be done initializing.
-          create: (context) => AuthBloc(skipAuth: true),
-        ),
-        BlocProvider(
           lazy: false,
           create: (context) => ConfigBloc<Config>(
             logger: logger,
@@ -85,44 +77,48 @@ class App extends StatelessWidget {
             configToJson: (config) => config.toJson(),
             configMerge: (configA, configB) => configA.merge(configB),
             remoteConfigEnabled: true,
-            remoteConfigToConfig: (remoteConfigMap) => Config(
-              welcome:
-                  json.decode(remoteConfigMap['welcome'].asString())['value'],
-            ),
-          )..add(InitConfig()),
+          ),
         ),
         BlocProvider(
           lazy: false,
           create: (context) => PushNotificationsBloc(
             logger: logger,
             channels: _pushNotificationChannels,
+            navigatorKey: App.navigatorKey,
           )..add(InitPushNotifications()),
         ),
       ],
-      child: ConfigBuilder<Config>(
-        builder: (context, config) {
-          return AuthListener(
+      child: ConfigListener<Config>(
+        navigatorKey: navigatorKey,
+        configLoadedRoute: Routes.home,
+        remoteConfigNotInitializedRoute: Routes.remoteConfigNotInitialized,
+        loadingRoute: Routes.splash,
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (context) => AuthBloc(skipAuth: true)),
+            BlocProvider(create: (context) => TodosBloc()),
+          ],
+          child: AuthListener(
             navigatorKey: navigatorKey,
-            homeRoute: Routes.home.route,
-            loginRoute: Routes.login.route,
-            splashRoute: Routes.splash.route,
+            authenticatedRoute: Routes.home,
+            loginRoute: Routes.login,
+            loadingRoute: Routes.splash,
             child: MaterialApp(
               title: 'App',
               theme: ThemeData(
                 primarySwatch: Colors.blue,
               ),
               navigatorKey: navigatorKey,
-              initialRoute: Routes.splash.route,
-              routes: Routes.routes,
+              initialRoute: Routes.splash,
+              onGenerateRoute: Routes.onGenerateRoute,
               navigatorObservers: [
                 FirebaseAnalyticsObserver(analytics: _analytics),
                 BotToastNavigatorObserver(),
               ],
               builder: BotToastInit(),
             ),
-          );
-        },
-        loading: (context) => SplashScreen(),
+          ),
+        ),
       ),
     );
   }

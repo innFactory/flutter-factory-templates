@@ -6,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../user_repository.dart';
 
+export 'package:flutter_bloc/flutter_bloc.dart';
+
 part 'auth_event.dart';
 part 'auth_state.dart';
 
@@ -23,7 +25,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   /// {@macro authbloc}
   AuthBloc({
     this.skipAuth = false,
-  }) : _userRepository = UserRepository();
+  }) : _userRepository = UserRepository() {
+    add(InitAuth());
+  }
 
   @override
   AuthState get initialState => AuthUninitialized();
@@ -33,7 +37,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthEvent event,
   ) async* {
     if (event is InitAuth) {
-      yield* _mapAppStartedToState();
+      yield* _mapInitAuthToState();
     } else if (event is LoggedIn) {
       yield* _mapLoggedInToState();
     } else if (event is LoggedOut) {
@@ -41,7 +45,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  Stream<AuthState> _mapAppStartedToState() async* {
+  Stream<AuthState> _mapInitAuthToState() async* {
     if (skipAuth) {
       yield Authenticated(null);
       return;

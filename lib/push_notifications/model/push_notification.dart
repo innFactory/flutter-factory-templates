@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 
 import 'push_notification_type.dart';
 
+export 'push_notification_type.dart';
+
 /// {@template PushNotification}
 /// Model class to store received PushNotification data
 /// {@endtemplate}
@@ -10,12 +12,12 @@ class PushNotification {
   final Map<String, dynamic> payload;
 
   /// The Type of the notification
-  final PushNotificationType pushNotificationType;
+  final PushNotificationType type;
 
   /// {@macro PushNotification}
   PushNotification({
     @required this.payload,
-    @required this.pushNotificationType,
+    @required this.type,
   });
 
   /// Gets the notification title out of the [payload]
@@ -28,7 +30,7 @@ class PushNotification {
   String get route => payload['data']['route'];
 
   /// Wether or not the payload contains a route
-  String get hasRoute => payload['data']['route'];
+  bool get hasRoute => payload['data']['route'] != null;
 
   @override
   String toString() => 'PushNotification { payload: $payload }';

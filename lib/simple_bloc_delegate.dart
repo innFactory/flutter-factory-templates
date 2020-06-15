@@ -7,17 +7,16 @@ class SimpleBlocDelegate extends BlocDelegate {
   @override
   void onEvent(Bloc bloc, Object event) {
     super.onEvent(bloc, event);
-    App.logger.v('${bloc.runtimeType}: $event');
+    App.logger.d('${bloc.runtimeType}: $event');
   }
 
   @override
   void onTransition(Bloc bloc, Transition transition) {
     super.onTransition(bloc, transition);
-    App.logger.d('''
---- ${bloc.runtimeType} Transition ---
-currentState: ${transition.currentState}
-event: ${transition.event}
-nextState: ${transition.nextState}''');
+    App.logger.d('--- ${bloc.runtimeType} Transition ---\n'
+        'currentState: ${transition.currentState}\n'
+        'event: ${transition.event}\n'
+        'nextState: ${transition.nextState}');
   }
 
   @override

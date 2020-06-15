@@ -9,6 +9,8 @@ import '../../auth_provider/auth_provider.dart';
 import '../../user_repository.dart';
 import '../../validators.dart';
 
+export 'package:flutter_bloc/flutter_bloc.dart';
+
 part 'login_event.dart';
 part 'login_state.dart';
 
@@ -83,8 +85,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     );
   }
 
-  Stream<LoginState> _mapLoginWithSocialPressedToState(
-      SocialLoginType socialLoginType) async* {
+  Stream<LoginState> _mapLoginWithSocialPressedToState(SocialLoginType socialLoginType) async* {
     AuthResponse response;
 
     if (socialLoginType == SocialLoginType.google) {
@@ -109,8 +110,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     yield LoginState.loading();
 
     try {
-      await _userRepository.signInWithCredentials(
-          email: email, password: password);
+      await _userRepository.signInWithCredentials(email: email, password: password);
       yield LoginState.success();
     } on Exception catch (error) {
       yield LoginState.failure('Error: $error');

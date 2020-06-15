@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'bloc/config_bloc.dart';
 
-typedef RemoteConfigData = Function(Map<String, RemoteConfigValue>);
+typedef RemoteConfigDataCallback = Function(Map<String, String>);
 
 /// {@template ConfigRepository}
 /// Repository with helper functions used in Configuration
@@ -17,12 +17,11 @@ class ConfigRepository<T> {
   /// [SharedPreferences] key for the Config as a json string
   static const String preferencesConfigKey = 'config';
 
-  /// [SharedPreferences] key storing wether or not the
-  /// [RemoteConfig] has been initialized before
-  static const String preferencesRemoteConfigInitializedKey =
-      'remoteConfigInitialized';
+  /// [SharedPreferences] key for the RemoteConfig as a json string
+  static const String preferencesRemoteConfigKey = 'remoteConfig';
 
-  StreamController<Map<String, RemoteConfigValue>> _remoteConfigStream;
+  /// [SharedPreferences] key storing wether or not the [RemoteConfig] has been initialized before
+  static const String preferencesRemoteConfigInitializedKey = 'remoteConfigInitialized';
 
   /// [Logger] instance to use for debugging
   final Logger logger;
@@ -40,39 +39,46 @@ class ConfigRepository<T> {
     @required this.configToJson,
   });
 
-  /// Get a [StreamSubscription] to listen to updated on the [RemoteConfig]
-  StreamSubscription listenToRemoteConfig(RemoteConfigData onData) {
-    _setupRemoteConfig();
-    _remoteConfigStream = StreamController<Map<String, RemoteConfigValue>>();
-    return _remoteConfigStream.stream.listen(onData);
-  }
-
-  Future<void> _setupRemoteConfig() async {
+  Future<void> setupRemoteConfig({
+    @required RemoteConfigDataCallback onUpdate,
+    @required VoidCallback onUpdateFailed,
+  }) async {
     final remoteConfig = await RemoteConfig.instance;
-    await remoteConfig
-        .setConfigSettings(RemoteConfigSettings(debugMode: false));
+    await remoteConfig.setConfigSettings(RemoteConfigSettings(debugMode: false));
 
     /// Refresh RemoteConfig every 60 minutes
     Timer.periodic(Duration(minutes: 60), (timer) {
-      _fetch(remoteConfig);
+      fetchRemoteConfig(
+        remoteConfig: remoteConfig,
+        onUpdate: onUpdate,
+        onUpdateFailed: onUpdateFailed,
+      );
     });
 
-    await _fetch(remoteConfig);
+    await fetchRemoteConfig(
+      remoteConfig: remoteConfig,
+      onUpdate: onUpdate,
+      onUpdateFailed: onUpdateFailed,
+    );
   }
 
-  Future<void> _fetch(RemoteConfig remoteConfig) async {
+  Future<void> fetchRemoteConfig({
+    @required RemoteConfig remoteConfig,
+    @required RemoteConfigDataCallback onUpdate,
+    @required VoidCallback onUpdateFailed,
+  }) async {
     try {
       await remoteConfig.fetch(expiration: const Duration(minutes: 60));
       await remoteConfig.activateFetched();
 
-      logger.d('''
---- Fetching RemoteConfig ---
-Last Fetch Status: ${remoteConfig.lastFetchStatus.toString()}
-Last Fetch Time: ${remoteConfig.lastFetchTime.toString()}
-Debug Mode: ${remoteConfig.remoteConfigSettings.debugMode.toString()}''');
+      logger.d('--- Fetching RemoteConfig ---\n'
+          'Last Fetch Status: ${remoteConfig.lastFetchStatus.toString()}\n'
+          'Last Fetch Time: ${remoteConfig.lastFetchTime.toString()}\n'
+          'Debug Mode: ${remoteConfig.remoteConfigSettings.debugMode.toString()}');
 
-      _remoteConfigStream.add(remoteConfig.getAll());
+      onUpdate(_remoteConfigMapAsStringMap(remoteConfig.getAll()));
     } on Exception catch (e, stacktrace) {
+      onUpdateFailed();
       logger.e('Error Fetching RemoteConfig', e, stacktrace);
     }
   }
@@ -81,8 +87,7 @@ Debug Mode: ${remoteConfig.remoteConfigSettings.debugMode.toString()}''');
   Future<bool> hasRemoteConfigBeenInitialized() async {
     final preferences = await SharedPreferences.getInstance();
     try {
-      return preferences.getBool(preferencesRemoteConfigInitializedKey) ??
-          false;
+      return preferences.getBool(preferencesRemoteConfigInitializedKey) ?? false;
     } on Exception catch (_) {
       return false;
     }
@@ -95,10 +100,24 @@ Debug Mode: ${remoteConfig.remoteConfigSettings.debugMode.toString()}''');
   }
 
   /// Save the current configuration to disk
-  Future<bool> saveConfig(T config) async {
+  Future<bool> saveRemoteConfig(Map<String, RemoteConfigValue> remoteConfigMap) async {
     final preferences = await SharedPreferences.getInstance();
     return preferences.setString(
-        preferencesConfigKey, json.encode(configToJson(config)));
+      preferencesRemoteConfigKey,
+      json.encode(_remoteConfigMapAsStringMap(remoteConfigMap)),
+    );
+  }
+
+  /// Save the current configuration to disk
+  Future<Map<String, String>> loadRemoteConfig() async {
+    final preferences = await SharedPreferences.getInstance();
+    return json.decode(preferences.getString(preferencesRemoteConfigKey));
+  }
+
+  /// Save the current configuration to disk
+  Future<bool> saveConfig(T config) async {
+    final preferences = await SharedPreferences.getInstance();
+    return preferences.setString(preferencesConfigKey, json.encode(configToJson(config)));
   }
 
   /// Load the current configuration from disk
@@ -109,9 +128,12 @@ Debug Mode: ${remoteConfig.remoteConfigSettings.debugMode.toString()}''');
     if (configString != null) {
       return configFromJson(json.decode(configString));
     } else {
-      await preferences.setString(
-          preferencesConfigKey, json.encode(configToJson(defaultConfig)));
+      await preferences.setString(preferencesConfigKey, json.encode(configToJson(defaultConfig)));
       return defaultConfig;
     }
+  }
+
+  Map<String, String> _remoteConfigMapAsStringMap(Map<String, RemoteConfigValue> remoteConfigMap) {
+    return remoteConfigMap.map((key, value) => MapEntry(key, value.toString()));
   }
 }

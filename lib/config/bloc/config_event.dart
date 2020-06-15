@@ -34,7 +34,7 @@ class UpdateConfig<T> extends ConfigEvent {
 /// {@endtemplate}
 class UpdateRemoteConfig extends ConfigEvent {
   /// The new [RemoteConfig] values
-  final Map<String, RemoteConfigValue> remoteConfig;
+  final Map<String, String> remoteConfig;
 
   /// {@macro UpdateRemoteConfig}
   UpdateRemoteConfig(this.remoteConfig);
@@ -45,3 +45,9 @@ class UpdateRemoteConfig extends ConfigEvent {
   @override
   String toString() => 'UpdateRemoteConfig { remoteConfig: $remoteConfig }';
 }
+
+/// Event fired when a [RemoteConfig] update has failed
+class UpdateRemoteConfigFailed extends ConfigEvent {}
+
+/// Event to reload the [RemoteConfig]
+class ReloadRemoteConfig extends ConfigEvent {}

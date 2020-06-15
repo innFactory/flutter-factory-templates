@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'bloc/auth_bloc.dart';
 
@@ -17,37 +16,34 @@ class AuthListener extends StatelessWidget {
   final GlobalKey<NavigatorState> navigatorKey;
 
   /// The route to go to when authentication has been successfull.
-  final String homeRoute;
+  final String authenticatedRoute;
 
   /// The route to the login screen.
   final String loginRoute;
 
-  /// The route to the splash screen while checking authentication.
-  final String splashRoute;
+  /// The route to while checking authentication.
+  final String loadingRoute;
 
   /// {@macro authlistener}
   const AuthListener({
     Key key,
     @required this.child,
     @required this.navigatorKey,
-    @required this.homeRoute,
+    @required this.authenticatedRoute,
     @required this.loginRoute,
-    @required this.splashRoute,
+    @required this.loadingRoute,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final authBloc = BlocProvider.of<AuthBloc>(context);
-    if (authBloc.state is AuthUninitialized) authBloc.add(InitAuth());
-
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, authState) {
         if (authState is Authenticated) {
-          navigatorKey.currentState.pushReplacementNamed(homeRoute);
+          navigatorKey.currentState.pushNamedAndRemoveUntil(authenticatedRoute, (_) => false);
         } else if (authState is Unauthenticated) {
-          navigatorKey.currentState.pushReplacementNamed(loginRoute);
+          navigatorKey.currentState.pushNamedAndRemoveUntil(loginRoute, (_) => false);
         } else {
-          navigatorKey.currentState.pushReplacementNamed(splashRoute);
+          navigatorKey.currentState.pushNamedAndRemoveUntil(loadingRoute, (_) => false);
         }
       },
       child: child,

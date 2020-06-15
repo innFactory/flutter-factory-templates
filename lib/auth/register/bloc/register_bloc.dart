@@ -9,6 +9,8 @@ import 'package:rxdart/rxdart.dart';
 import '../../user_repository.dart';
 import '../../validators.dart';
 
+export 'package:flutter_bloc/flutter_bloc.dart';
+
 part 'register_event.dart';
 part 'register_state.dart';
 

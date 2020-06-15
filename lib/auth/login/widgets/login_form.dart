@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../bloc/auth_bloc.dart';
@@ -33,8 +32,7 @@ class _LoginFormState extends State<LoginForm> {
 
   LoginBloc _loginBloc;
 
-  bool get isPopulated =>
-      _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty;
+  bool get isPopulated => _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty;
 
   bool isLoginButtonEnabled(LoginState state) {
     return state.isFormValid && isPopulated && !state.isSubmitting;
@@ -59,10 +57,7 @@ class _LoginFormState extends State<LoginForm> {
               SnackBar(
                 content: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(state.error ?? 'Login fehlgeschlagen'),
-                    Icon(Icons.error)
-                  ],
+                  children: [Text(state.error ?? 'Login fehlgeschlagen'), Icon(Icons.error)],
                 ),
                 backgroundColor: Colors.red,
               ),
@@ -142,9 +137,7 @@ class _LoginFormState extends State<LoginForm> {
                             ),
                             Spacer(),
                             LoginButton(
-                              onPressed: isLoginButtonEnabled(state)
-                                  ? _onFormSubmitted
-                                  : null,
+                              onPressed: isLoginButtonEnabled(state) ? _onFormSubmitted : null,
                             ),
                           ],
                         ),

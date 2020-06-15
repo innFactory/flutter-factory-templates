@@ -5,7 +5,7 @@
 		},
 		"editor.formatOnSave": true,
 		"editor.formatOnType": true,
-		"editor.rulers": [80],
+		"editor.rulers": [120],
 		"editor.selectionHighlight": false,
 		"editor.suggest.snippetsPreventQuickSuggestions": false,
 		"editor.suggestSelection": "first",
@@ -13,5 +13,5 @@
 		"editor.wordBasedSuggestions": false,
 		"files.insertFinalNewline": true
 	},
-	"dart.lineLength": 80
+	"dart.lineLength": 120
 }

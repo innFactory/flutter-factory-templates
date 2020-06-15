@@ -1,26 +1,32 @@
-import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../auth/bloc/auth_bloc.dart';
-import '../push_notifications/push_notifications.dart';
+import 'pages/settings.dart';
+import 'pages/test.dart';
+import 'pages/todos/todos.dart';
 
 /// The HomeScreen of the Application
 class HomeScreen extends StatefulWidget {
+  final int initialPage;
+
+  const HomeScreen({
+    Key key,
+    this.initialPage,
+  }) : super(key: key);
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  int _currentPage;
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin<HomeScreen> {
   PageController _pageController;
+  int _currentPage;
 
   @override
   void initState() {
     super.initState();
-    _currentPage = 0;
-    _pageController = PageController(initialPage: _currentPage, keepPage: true);
+    final initialPage = widget.initialPage ?? 0;
+    _pageController = PageController(initialPage: initialPage, keepPage: true);
+    _currentPage = initialPage;
   }
 
   @override
@@ -32,67 +38,32 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('App'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(FontAwesomeIcons.signOutAlt),
-            onPressed: () =>
-                BlocProvider.of<AuthBloc>(context).add(LoggedOut()),
-          )
-        ],
-      ),
-      body: PageView(
-        controller: _pageController,
-        physics: NeverScrollableScrollPhysics(),
-        onPageChanged: (index) => setState(() => _currentPage = index),
-        children: <Widget>[
-          Container(
-            color: Colors.green,
-            child: Center(
-              child: ListView(
-                children: <Widget>[
-                  RaisedButton(
-                    child: Text('Test Notification'),
-                    onPressed: () => BotToast.showSimpleNotification(
-                        title: 'Test', subTitle: 'Testnotification'),
-                  ),
-                  BlocBuilder<PushNotificationsBloc, PushNotificationsState>(
-                    builder: (context, state) {
-                      if (state is PushNotificationsLoaded) {
-                        return RaisedButton(
-                          child: Text('''
-                            Test toggle notification channel:
-                            ${state.channels.first.isSubscribed}'''),
-                          onPressed: () =>
-                              BlocProvider.of<PushNotificationsBloc>(context)
-                                  .add(TogglePushNotificationChannel(
-                                      state.channels.first)),
-                        );
-                      }
-
-                      return Container();
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Container(color: Colors.orange),
-          Container(color: Colors.red),
-        ],
+      body: SafeArea(
+        top: false,
+        child: PageView(
+          controller: _pageController,
+          physics: NeverScrollableScrollPhysics(),
+          children: <Widget>[
+            TestPage(),
+            TodosPage(),
+            SettingsPage(),
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentPage,
-        onTap: (index) => _pageController.jumpToPage(index),
+        onTap: (page) {
+          _pageController.jumpToPage(page);
+          setState(() => _currentPage = page);
+        },
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            title: Text('Page 1'),
+            title: Text('Test'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            title: Text('Page 2'),
+            icon: Icon(Icons.list),
+            title: Text('Todos'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),

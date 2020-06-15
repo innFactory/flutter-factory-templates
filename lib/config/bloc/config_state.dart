@@ -18,13 +18,13 @@ class ConfigLoaded<T> extends ConfigState {
   /// The current config
   final T config;
 
-  /// Wether or not the [RemoteConfig] has been initialized at least once
-  final bool remoteConfigInitialized;
+  /// The current [RemoteConfig] if enabled
+  final Map<String, String> remoteConfig;
 
   /// {@macro ConfigLoaded}
   ConfigLoaded({
     @required this.config,
-    @required this.remoteConfigInitialized,
+    @required this.remoteConfig,
   });
 
   @override
@@ -33,6 +33,8 @@ class ConfigLoaded<T> extends ConfigState {
   @override
   String toString() => '''ConfigLoaded {
     config: $config,
-    remoteConfigInitialized: $remoteConfigInitialized
+    remoteConfig: $remoteConfig,
   }''';
 }
+
+class RemoteConfigNotInitialized extends ConfigState {}

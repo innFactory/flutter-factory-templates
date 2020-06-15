@@ -1,45 +1,55 @@
-// ignore_for_file: avoid_classes_with_only_static_members
-// ignore_for_file: public_member_api_docs
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'auth/auth.dart';
+import 'config/remote_config_not_initialized.dart';
 import 'views/home.dart';
+import 'views/pages/todos/add_edit_todo.dart';
 import 'views/splash.dart';
 
 class Routes {
-  static _Route splash = _Route(
-    route: '/',
-    page: (context) => SplashScreen(),
-  );
-  static _Route home = _Route(
-    route: '/home',
-    page: (context) => HomeScreen(),
-  );
+  // General
+  static const String splash = '/';
+  static const String home = '/home';
+
+  // Todos
+  static const String todos = '/todos';
+  static const String addEditTodo = 'addEditTodo';
+
+  // Config
+  static const String remoteConfigNotInitialized = '/remoteConfigNotInitialized';
 
   // Auth
-  static _Route register = _Route(
-    route: '/register',
-    page: (context) => RegisterScreen(),
-  );
-  static _Route login = _Route(
-    route: '/auth',
-    page: (context) => LoginScreen(registerRoute: register.route),
-  );
+  static const String register = '/register';
+  static const String login = '/login';
 
-  static Map<String, Widget Function(BuildContext)> routes = {
-    splash.route: splash.page,
-    home.route: home.page,
-    login.route: login.page,
-    register.route: register.page,
-  };
-}
+  static Route<dynamic> onGenerateRoute(RouteSettings settings) {
+    switch (settings.name) {
+      // General
+      case home:
+        return MaterialPageRoute(builder: (context) => HomeScreen(initialPage: settings.arguments));
+      case splash:
+        return MaterialPageRoute(builder: (context) => SplashScreen());
 
-class _Route {
-  final String route;
-  final WidgetBuilder page;
+      // Todos
+      case todos:
+        return MaterialPageRoute(builder: (context) => HomeScreen(initialPage: 1));
+      case addEditTodo:
+        return MaterialPageRoute(builder: (context) => AddEditTodoScreen(todo: settings.arguments));
 
-  const _Route({
-    @required this.route,
-    @required this.page,
-  });
+      // Config
+      case remoteConfigNotInitialized:
+        return MaterialPageRoute(builder: (context) => RemoteConfigNotInitialized());
+
+      // Authentication
+      case login:
+        return MaterialPageRoute(builder: (context) => LoginScreen(registerRoute: register));
+      case register:
+        return MaterialPageRoute(builder: (context) => RegisterScreen());
+
+      // Fallback / RouteNotFound
+      default:
+        return MaterialPageRoute(builder: (context) => Container());
+    }
+  }
 }
